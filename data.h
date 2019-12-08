@@ -3,8 +3,6 @@
 
 #include <stdint.h>
 
-#define NIL16                          0xffff
-
 #define MAX_USERS                        8192
 #define MAX_NICK_SIZE                      32
 #define MAX_IDENT_SIZE                     32
@@ -12,57 +10,61 @@
 
 #define UMODE_OPER                 0x00000001
 
-#define CUMODE_OP                        0x80
-#define CUMODE_VOICE                     0x01
-
 extern struct user {
 	uint32_t mode;
-	uint16_t next;
-	
+	struct user *next, *prev;
+
 	uint8_t nick[MAX_NICK_SIZE];
 	uint8_t ident[MAX_IDENT_SIZE];
 	uint8_t gecos[MAX_GECOS_SIZE];
 
-	uint16_t chanuser;
-} br_all_users[MAX_USERS];
+	struct chanuser *chanuser_head;
+} user_pool[MAX_USERS];
 
-extern uint16_t br_free_user;
-extern uint16_t br_next_user;
-
-#define MAX_CHANS                        4096
+#define MAX_CHANNELS                     4096
 #define MAX_CHAN_NAME_SIZE                128
 #define MAX_TOPIC_SIZE                    256
 
 #define CMODE_SECRET               0x00000001
 
-extern struct chan {
+extern struct channel {
 	uint32_t mode;
-	uint16_t next;
+	struct channel *next, *prev;
 
 	uint8_t name[MAX_CHAN_NAME_SIZE];
 	uint8_t topic[MAX_TOPIC_SIZE];
 
-	uint16_t chanuser;
-} br_all_chans[MAX_CHANS];
-
-extern uint16_t br_free_chan;
-extern uint16_t br_next_chan;
+	struct chanuser *chanuser_head;
+} channel_pool[MAX_CHANNELS];
 
 #define MAX_CHANUSERS                   16384
 
+#define CUMODE_OP                        0x80
+#define CUMODE_VOICE                     0x01
+
 extern struct chanuser {
-	uint16_t next_by_user;
-	uint16_t prev_by_user;
+	struct user *user;
+	struct chan *chan;
 
-	uint16_t next_by_chan;
-	uint16_t prev_by_chan;
-	
+	struct chanuser *next_by_user;
+	struct chanuser *prev_by_user;
+
+	struct chanuser *next_by_chan;
+	struct chanuser *prev_by_chan;
+
 	uint8_t mode;
-} br_all_chanusers[MAX_CHANUSERS];
+} chanuser_pool[MAX_CHANUSERS];
 
-extern uint16_t br_free_chanuser;
-extern uint16_t br_next_chanuser;
+#define MAX_IRC_CONNS                    8192
+#define IRC_CONN_INBUF                   1024
 
-#define MAX_LOCAL_CONNS                  8192
+extern struct irc_conn {
+	struct conn *next, *prev;
+
+	int fd;
+
+	uint8_t inbuf[IRC_CONN_INBUF];
+	size_t insize;
+} irc_conn_pool[MAX_IRC_CONNS];
 
 #endif

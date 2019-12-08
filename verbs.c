@@ -30,16 +30,17 @@ static bool equals_verb(const uint8_t *s, const uint8_t *verb) {
 }
 
 const struct verb *find_verb(const uint8_t *s) {
-	uint8_t hash = hash_verb(s);
+	uint8_t idx = hash_verb(s) & VERB_TABLE_MASK;
 	
-	if (equals_verb(s, verb_table[hash].verb)) {
-		return verb_table[hash].data;
+	if (equals_verb(s, verb_table[idx].verb)) {
+		return verb_table[idx].data;
 	} else {
 		return NULL;
 	}
 }
 
 int main(int argc, char *argv[]) {
+	int i;
 	if (argc < 2) {
 		printf("need arg!\n");
 		return 1;

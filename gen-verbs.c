@@ -41,9 +41,14 @@ static const uint8_t verbs[][VERB_SIZE] = {
 	""
 };
 
+static unsigned attempts = 0;
 static uint8_t param[VERB_SIZE];
 
-static const uint8_t *table[256];
+#define TABLE_BITS 6
+#define TABLE_SIZE (1<<TABLE_BITS)
+#define TABLE_MASK (TABLE_SIZE-1)
+
+static const uint8_t *table[TABLE_SIZE];
 
 static uint8_t hash_verb(const uint8_t *verb) {
 	uint8_t hash = 0;
@@ -53,33 +58,29 @@ static uint8_t hash_verb(const uint8_t *verb) {
 		hash += param[i] * verb[i];
 	}
 
-	return hash;
+	return hash & TABLE_MASK;
 }
 
 static void choose_params(void) {
 	int i;
 	
-	fprintf(stderr, "Trying params:");
 	for (i=0; i<VERB_SIZE; i++) {
+		attempts++;
 		param[i] = rand() | 1; // force odd value
-		fprintf(stderr, " %02x", param[i]);
 	}
-	fprintf(stderr, "\n");
 }
 
 static bool has_collisions(void) {
 	uint8_t hash;
 	int i;
 	
-	for (i=0; i<256; i++) {
+	for (i=0; i<TABLE_SIZE; i++) {
 		table[i] = NULL;
 	}
 
 	for (i=0; verbs[i][0]; i++) {
 		hash = hash_verb(verbs[i]);
 		if (table[hash] != NULL) {
-			fprintf(stderr, "Collides: %s <-> %s\n",
-			        table[hash], verbs[i]);
 			return true;
 		} else {
 			table[hash] = verbs[i];
@@ -98,6 +99,9 @@ void emit_verbs_h() {
 	printf("#include <stdint.h>\n");
 	printf("\n");
 	printf("#define VERB_SIZE %d\n", VERB_SIZE);
+	printf("#define VERB_TABLE_BITS %d\n", TABLE_BITS);
+	printf("#define VERB_TABLE_MASK %d\n", TABLE_MASK);
+	printf("#define VERB_TABLE_SIZE %d\n", TABLE_SIZE);
 	printf("\n");
 	for (i=0; verbs[i][0]; i++) {
 		printf("extern const struct verb verb_%s;\n", verbs[i]);
@@ -106,15 +110,15 @@ void emit_verbs_h() {
 	printf("extern const struct verb_table {\n");
 	printf("\tconst uint8_t verb[VERB_SIZE];\n");
 	printf("\tconst struct verb *data;\n");
-	printf("} verb_table[256];\n");
+	printf("} verb_table[VERB_TABLE_SIZE];\n");
 	printf("\n");
 	printf("extern const uint8_t verb_table_param[VERB_SIZE];\n");
 	printf("\n");
 	printf("#ifdef __INCLUDE_VERB_TABLE_DEFINITION\n");
-	printf("const struct verb_table verb_table[256] = {\n");
-	for (i=0; i<256; i++) {
+	printf("const struct verb_table verb_table[VERB_TABLE_SIZE] = {\n");
+	for (i=0; i<TABLE_SIZE; i++) {
 		if (table[i]) {
-			printf("\n{ .verb = \"%s\", .data = &verb_%s }, ",
+			printf("\n{ .verb = \"%s\", .data = &verb_%s },",
 			       table[i], table[i]);
 		} else {
 			printf("{},");
@@ -135,6 +139,7 @@ int main(int argc, char *argv[]) {
 	fprintf(stderr, "Finding verb table parameters...\n");
 	srand(time(NULL));
 	do { choose_params(); } while (has_collisions());
+	fprintf(stderr, "Took %d attempts\n", attempts);
 	fprintf(stderr, "Writing verb table...\n");
 	emit_verbs_h();
 }

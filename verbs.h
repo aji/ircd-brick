@@ -2,7 +2,7 @@
 #define __INC_VERBS_H__
 
 struct verb {
-	uint8_t *tada;
+	char *tada;
 };
 
 #include "verb-table.h"

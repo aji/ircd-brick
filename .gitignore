@@ -4,3 +4,4 @@
 gen-verbs
 verb-table.h
 ircd-brick
+*.deps
