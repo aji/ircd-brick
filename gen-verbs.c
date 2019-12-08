@@ -1,3 +1,9 @@
+/* This file is a stand-alone program that generates a static hash table for
+   IRC verbs. It generates hash functions at random until it finds one that
+   can hash all the valid verb names without introducing any collisions, then
+   it writes a .h file with this information. The generated tables are used
+   by verbs.c */
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -72,7 +78,8 @@ static bool has_collisions(void) {
 	for (i=0; verbs[i][0]; i++) {
 		hash = hash_verb(verbs[i]);
 		if (table[hash] != NULL) {
-			fprintf(stderr, "Collides: %s <-> %s\n", table[hash], verbs[i]);
+			fprintf(stderr, "Collides: %s <-> %s\n",
+			        table[hash], verbs[i]);
 			return true;
 		} else {
 			table[hash] = verbs[i];
@@ -107,7 +114,8 @@ void emit_verbs_h() {
 	printf("const struct verb_table verb_table[256] = {\n");
 	for (i=0; i<256; i++) {
 		if (table[i]) {
-			printf("\n{ .verb = \"%s\", .data = &verb_%s }, ", table[i], table[i]);
+			printf("\n{ .verb = \"%s\", .data = &verb_%s }, ",
+			       table[i], table[i]);
 		} else {
 			printf("{},");
 		}
