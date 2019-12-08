@@ -1,0 +1,6 @@
+*~
+*.swp
+*.o
+gen-verbs
+verb-table.h
+ircd-brick
