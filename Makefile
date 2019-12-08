@@ -16,6 +16,7 @@ clean:
 	rm -f $(DEPS)
 	rm -f verb-table.h
 	rm -f gen-verbs
+	rm -f ircd-brick
 
 %.o.deps: %.c
 	$(CC) -MM -MG -MF $@ $<
