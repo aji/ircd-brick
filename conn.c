@@ -25,6 +25,8 @@ void start_ipv4_listener(uint16_t port) {
 	addr.sin_port = htons(port);
 	addr.sin_addr.s_addr = INADDR_ANY;
 
+	loggerf(LOG_INFO, "Listening on port %d", (int) port);
+
 	perror_assert("socket",
 		(fd = socket(AF_INET, SOCK_STREAM, 0)));
 	perror_assert("bind",

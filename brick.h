@@ -8,6 +8,11 @@
 
 #define perror_assert(OP, X) ((X) < 0 ? (perror(OP), abort()) : 0)
 
+/* Data definitions
+   ---------------------------------------------------------------------- */
+
+#define BUFSIZE                          4096
+
 #define MAX_IRC_LISTENERS                   8
 
 #define MAX_LOCAL_IRC_CONNS              2048
@@ -32,6 +37,14 @@
 
 #define CUMODE_OP                        0x80
 #define CUMODE_VOICE                     0x01
+
+enum log_level {
+	LOG_DEBUG      = 1,
+	LOG_INFO       = 2,
+	LOG_WARN       = 3,
+	LOG_ERROR      = 4,
+	LOG_FATAL      = 5,
+};
 
 struct irc_listener {
 	int fd;
@@ -95,11 +108,21 @@ struct verb {
 
 #include "verb-table.h"
 
+/* Pre-allocated server state
+   ---------------------------------------------------------------------- */
+
+extern enum log_level log_level;
+
 extern struct irc_conn irc_conn_pool[MAX_LOCAL_IRC_CONNS];
 
 extern struct user user_pool[MAX_USERS];
 extern struct channel channel_pool[MAX_CHANNELS];
 extern struct chanuser chanuser_pool[MAX_CHANUSERS];
+
+/* Functions
+   ---------------------------------------------------------------------- */
+
+extern void loggerf(enum log_level level, const char *fmt, ...);
 
 extern void add_listener(int fd);
 extern void start_ipv4_listener(uint16_t port);

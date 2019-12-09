@@ -2,6 +2,7 @@ OBJECTS = \
 	conn.o \
 	data.o \
 	event-poll.o \
+	log.o \
 	main.o \
 	message.o \
 	verbs.o
@@ -23,10 +24,10 @@ clean:
 	rm -f ircd-brick
 
 %.o.deps: %.c
-	$(CC) -MM -MG -MF $@ $<
+	$(CC) $(CFLAGS) -M -MG -MF $@ $<
 
 %.o: %.c
-	$(CC) -c -o $@ $<
+	$(CC) $(CFLAGS) -c -o $@ $<
 
 verb-table.h: gen-verbs
 	./gen-verbs > $@
