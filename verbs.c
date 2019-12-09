@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <stdio.h>
 
 #define __INCLUDE_VERB_TABLE_DEFINITION
 #include "verbs.h"
@@ -38,21 +37,6 @@ const struct verb *find_verb(const uint8_t *s) {
 		return NULL;
 	}
 }
-
-int main(int argc, char *argv[]) {
-	int i;
-	if (argc < 2) {
-		printf("need arg!\n");
-		return 1;
-	}
-	const struct verb *verb = find_verb((uint8_t*) argv[1]);
-	if (verb == NULL) {
-		printf("no verb %s\n", argv[1]);
-		return 1;
-	}
-	printf("%s\n", verb->tada);
-}
-
 
 const struct verb verb_AWAY = { "marks you away" };
 const struct verb verb_CAP = { "set client capabilities" };

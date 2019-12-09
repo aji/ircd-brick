@@ -1,5 +1,6 @@
 OBJECTS = \
 	data.o \
+	message.o \
 	verbs.o
 
 DEPS = $(OBJECTS:=.deps)
