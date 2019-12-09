@@ -83,13 +83,16 @@ void poll_fds_once(void) {
 	int i, num_ready;
 
 	assert(num_fds > 0);
-
 	num_ready = poll(pollfds, num_fds, 1000);
 
-	for (i=0; 0<num_ready && i<num_fds; i++) {
+	/* The tables can change while we're handling an event, but it's
+	   rare enough to encounter multiple simultaneous events that we
+	   choose the simplicity of simply polling a second time, by
+	   breaking out of the loop as soon as we handle one event. */
+	for (i=0; 0<num_ready, i<num_fds; i++) {
 		if (pollfds[i].revents & POLLIN) {
-			num_ready--;
 			handlers[i].cb(handlers[i].data);
+			break;
 		}
 	}
 }

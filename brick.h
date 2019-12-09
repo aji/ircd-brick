@@ -48,8 +48,7 @@ struct irc_listener {
 };
 
 struct irc_conn {
-	struct conn *next, *prev;
-
+	struct irc_conn *next, *prev;
 	int fd;
 
 	uint8_t inbuf[MAX_IRC_CONN_INBUF];
@@ -75,6 +74,7 @@ extern struct irc_listener irc_listeners[MAX_IRC_LISTENERS];
 extern size_t num_irc_listeners;
 
 extern struct irc_conn irc_conn_pool[MAX_LOCAL_IRC_CONNS];
+extern struct irc_conn irc_conns_active;
 
 extern void start_ipv4_listener(uint16_t port);
 
