@@ -4,18 +4,6 @@
 
 #include "message.h"
 
-static void next_nonspace(uint8_t *s, size_t n, size_t *i) {
-	for (; *i<n && isspace(s[*i]); (*i)++);
-}
-
-static void next_space(uint8_t *s, size_t n, size_t *i) {
-	for (; *i<n && !isspace(s[*i]); (*i)++);
-}
-
-static void next_newline(uint8_t *s, size_t n, size_t *i) {
-	for (; *i<n && s[*i] != '\n' && s[*i] != '\r'; (*i)++);
-}
-
 size_t parse_rfc1459(struct rfc1459_message *m, uint8_t *s, size_t n) {
 	size_t i = 0;
 	m->nargs = 0;
