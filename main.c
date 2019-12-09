@@ -3,14 +3,14 @@
 bool ircd_running = true;
 
 int main(int argc, char *argv[]) {
-	loggerf(LOG_INFO, "Starting up");
+	log_info("Starting up");
 	start_ipv4_listener(6667);
 
-	loggerf(LOG_INFO, "Entering event loop");
+	log_info("Entering event loop");
 	while (ircd_running) {
 		poll_fds_once();
 	}
 
-	loggerf(LOG_INFO, "Goodbye...");
+	log_info("Goodbye...");
 	return 0;
 }

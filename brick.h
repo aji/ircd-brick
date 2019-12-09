@@ -41,6 +41,8 @@ extern void loggerf(enum log_level level, const char *fmt, ...);
 
 #define MAX_RFC1459_ARGS                   16
 
+#define MAX_FDS (MAX_IRC_LISTENERS + MAX_LOCAL_IRC_CONNS)
+
 struct irc_listener {
 	int fd;
 };
@@ -74,9 +76,10 @@ extern size_t num_irc_listeners;
 
 extern struct irc_conn irc_conn_pool[MAX_LOCAL_IRC_CONNS];
 
-extern void add_listener(int fd);
 extern void start_ipv4_listener(uint16_t port);
 
+extern void register_fd(int fd, void (*cb)(void*), void*);
+extern void deregister_fd(int fd);
 extern void poll_fds_once(void);
 
 /* Parses the buffer at [s, s+n) and fills m with the appropriate pointers.
