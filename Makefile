@@ -1,5 +1,8 @@
 OBJECTS = \
+	conn.o \
 	data.o \
+	event-poll.o \
+	main.o \
 	message.o \
 	verbs.o
 

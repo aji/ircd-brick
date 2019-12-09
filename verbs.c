@@ -3,7 +3,7 @@
 #include <stdbool.h>
 
 #define __INCLUDE_VERB_TABLE_DEFINITION
-#include "verbs.h"
+#include "brick.h"
 
 static uint8_t hash_verb(const uint8_t *s) {
 	uint8_t hash;

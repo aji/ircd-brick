@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include "data.h"
+#include "brick.h"
 
 struct user user_pool[MAX_USERS];
 
