@@ -7,6 +7,8 @@ OBJECTS = \
 	message.o \
 	verbs.o
 
+CFLAGS = -Og
+
 DEPS = $(OBJECTS:=.deps)
 
 build: ircd-brick
