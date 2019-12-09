@@ -14,20 +14,26 @@ static struct pollfd pollfds[MAX_FDS];
 static size_t num_fds = 0;
 
 static size_t find_fd_in(int fd, size_t min, size_t max) {
-	size_t center;
+	size_t i;
 
 	if (min == max) {
 		return min;
+	} else if (max < min + 4) {
+		for (i=min; i<max; i++) {
+			if (fd <= pollfds[i].fd)
+				break;
+		}
+		return i;
 	}
 
-	center = (min + max) / 2;
+	i = (min + max) / 2;
 
-	if (pollfds[center].fd == fd) {
-		return center;
-	} else if (fd < pollfds[center].fd) {
-		return find_fd_in(fd, min, center);
+	if (pollfds[i].fd == fd) {
+		return i;
+	} else if (pollfds[i].fd < fd) {
+		return find_fd_in(fd, i, max);
 	} else {
-		return find_fd_in(fd, center, max);
+		return find_fd_in(fd, min, i);
 	}
 }
 
@@ -74,6 +80,9 @@ void deregister_fd(int fd) {
 		return;
 	}
 
+	log_info("Deregistering file descriptor at=%d fd=%d cb=%p data=%p",
+		at, fd, handlers[at].cb, handlers[at].data);
+
 	memmove(pollfds+at, pollfds+at+1, nafter*sizeof(pollfds[0]));
 	memmove(handlers+at, handlers+at+1, nafter*sizeof(handlers[0]));
 	num_fds--;
@@ -82,14 +91,26 @@ void deregister_fd(int fd) {
 void poll_fds_once(void) {
 	int i, num_ready;
 
+	log_info("polling:");
+	for (i=0; i<num_fds; i++) {
+		log_info("  [%d] fd=%d cb=%p data=%p",
+			i, pollfds[i].fd, handlers[i].cb, handlers[i].data);
+	}
+
 	assert(num_fds > 0);
 	num_ready = poll(pollfds, num_fds, 1000);
+
+	if (num_ready < 0) {
+		perror("poll");
+	} else if (num_ready == 0) {
+		return;
+	}
 
 	/* The tables can change while we're handling an event, but it's
 	   rare enough to encounter multiple simultaneous events that we
 	   choose the simplicity of simply polling a second time, by
 	   breaking out of the loop as soon as we handle one event. */
-	for (i=0; 0<num_ready, i<num_fds; i++) {
+	for (i=0; i<num_fds; i++) {
 		if (pollfds[i].revents & POLLIN) {
 			handlers[i].cb(handlers[i].data);
 			break;

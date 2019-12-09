@@ -1,3 +1,5 @@
+#include <poll.h>
+
 #include "brick.h"
 
 bool ircd_running = true;

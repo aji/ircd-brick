@@ -72,6 +72,7 @@ static void handle_irc_conn_input(void *param) {
 		close(conn->fd);
 		deregister_fd(conn->fd);
 		release_irc_conn(conn);
+		return;
 	}
 
 	n = read(conn->fd,
@@ -83,6 +84,7 @@ static void handle_irc_conn_input(void *param) {
 		close(conn->fd);
 		deregister_fd(conn->fd);
 		release_irc_conn(conn);
+		return;
 	}
 
 	conn->insize += n;
@@ -146,10 +148,10 @@ void start_ipv4_listener(uint16_t port) {
 
 	perror_assert("socket",
 		(fd = socket(AF_INET, SOCK_STREAM, 0)));
-	perror_assert("bind",
-		bind(fd, (void*)&addr, sizeof(addr)));
 	perror_assert("setsockopt",
 		setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one)));
+	perror_assert("bind",
+		bind(fd, (void*)&addr, sizeof(addr)));
 	perror_assert("listen",
 		listen(fd, 5));
 
