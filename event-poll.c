@@ -12,6 +12,7 @@ struct handler_info {
 static struct handler_info handlers[MAX_FDS];
 static struct pollfd pollfds[MAX_FDS];
 static size_t num_fds = 0;
+static unsigned num_iterations = 0;
 
 static size_t find_fd_in(int fd, size_t min, size_t max) {
 	size_t i;
@@ -89,7 +90,9 @@ void deregister_fd(int fd) {
 }
 
 void poll_fds_once(void) {
-	int i, num_ready;
+	int i, j, num_ready;
+
+	num_iterations++;
 
 	log_info("polling:");
 	for (i=0; i<num_fds; i++) {
@@ -109,10 +112,16 @@ void poll_fds_once(void) {
 	/* The tables can change while we're handling an event, but it's
 	   rare enough to encounter multiple simultaneous events that we
 	   choose the simplicity of simply polling a second time, by
-	   breaking out of the loop as soon as we handle one event. */
+	   breaking out of the loop as soon as we handle one event.
+
+	   Since we only handle one event per iteration, we also use a
+	   different starting index when iterating over the list of pollfds,
+	   in order to prevent unfairly handling events on fds earlier in the
+	   list more frequently. */
 	for (i=0; i<num_fds; i++) {
-		if (pollfds[i].revents & POLLIN) {
-			handlers[i].cb(handlers[i].data);
+		j = (i + num_iterations) % num_fds;
+		if (pollfds[j].revents & POLLIN) {
+			handlers[j].cb(handlers[j].data);
 			break;
 		}
 	}
