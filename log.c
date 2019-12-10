@@ -4,7 +4,7 @@
 
 #include "brick.h"
 
-enum log_level log_level = LOG_INFO;
+enum log_level log_level = LOG_DEBUG;
 
 static const char *level_names[] = {
 	[LOG_DEBUG]      = "DEBUG",
@@ -14,7 +14,7 @@ static const char *level_names[] = {
 	[LOG_FATAL]      = "FATAL",
 };
 
-void loggerf(enum log_level level, const char *fmt, ...) {
+void loggerf(enum log_level level, const char *fn, const char *fmt, ...) {
 	va_list va;
 	time_t now;
 	char buf[BUFSIZE];
@@ -25,7 +25,7 @@ void loggerf(enum log_level level, const char *fmt, ...) {
 
 	time(&now);
 	strftime(buf, BUFSIZE, "%Y-%m-%dT%H:%M:%SZ", gmtime(&now));
-	fprintf(stderr, "%s [%s] ", buf, level_names[level]);
+	fprintf(stderr, "%s [%s] %s: ", buf, level_names[level], fn);
 
 	va_start(va, fmt);
 	vsnprintf(buf, BUFSIZE, fmt, va);

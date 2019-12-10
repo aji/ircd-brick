@@ -14,6 +14,15 @@ static struct pollfd pollfds[MAX_FDS];
 static size_t num_fds = 0;
 static unsigned num_iterations = 0;
 
+static void log_fd_table(enum log_level level, const char *fn) {
+	int i;
+
+	for (i=0; i<num_fds; i++) {
+		loggerf(level, fn, "  (%4d)  %4d  %p(%p)",
+			i, pollfds[i].fd, handlers[i].cb, handlers[i].data);
+	}
+}
+
 static size_t find_fd_in(int fd, size_t min, size_t max) {
 	size_t i;
 
@@ -67,8 +76,8 @@ void register_fd(int fd, void (*cb)(void*), void *data) {
 	pollfds[at].fd = fd;
 	pollfds[at].events = POLLIN;
 
-	log_info("Registered file descriptor at=%d fd=%d cb=%p data=%p",
-		at, fd, cb, data);
+	log_debug("at=%d fd=%d cb=%p data=%p", at, fd, cb, data);
+	log_fd_table(LOG_DEBUG, __func__);
 }
 
 void deregister_fd(int fd) {
@@ -81,24 +90,20 @@ void deregister_fd(int fd) {
 		return;
 	}
 
-	log_info("Deregistering file descriptor at=%d fd=%d cb=%p data=%p",
+	log_debug("at=%d fd=%d cb=%p data=%p",
 		at, fd, handlers[at].cb, handlers[at].data);
 
 	memmove(pollfds+at, pollfds+at+1, nafter*sizeof(pollfds[0]));
 	memmove(handlers+at, handlers+at+1, nafter*sizeof(handlers[0]));
 	num_fds--;
+
+	log_fd_table(LOG_DEBUG, __func__);
 }
 
 void poll_fds_once(void) {
 	int i, j, num_ready;
 
 	num_iterations++;
-
-	log_info("polling:");
-	for (i=0; i<num_fds; i++) {
-		log_info("  [%d] fd=%d cb=%p data=%p",
-			i, pollfds[i].fd, handlers[i].cb, handlers[i].data);
-	}
 
 	assert(num_fds > 0);
 	num_ready = poll(pollfds, num_fds, 1000);

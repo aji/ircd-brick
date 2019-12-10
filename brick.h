@@ -23,13 +23,13 @@ enum log_level {
 };
 
 extern enum log_level log_level;
-extern void loggerf(enum log_level level, const char *fmt, ...);
+extern void loggerf(enum log_level level, const char *fn, const char *fmt, ...);
 
-#define log_debug(X...)     loggerf(LOG_DEBUG, X)
-#define log_info(X...)      loggerf(LOG_INFO, X)
-#define log_warn(X...)      loggerf(LOG_WARN, X)
-#define log_error(X...)     loggerf(LOG_ERROR, X)
-#define log_fatal(X...)     loggerf(LOG_FATAL, X)
+#define log_debug(X...)     loggerf(LOG_DEBUG, __func__, X)
+#define log_info(X...)      loggerf(LOG_INFO,  __func__, X)
+#define log_warn(X...)      loggerf(LOG_WARN,  __func__, X)
+#define log_error(X...)     loggerf(LOG_ERROR, __func__, X)
+#define log_fatal(X...)     loggerf(LOG_FATAL, __func__, X)
 
 /* Network and connection handling
    ---------------------------------------------------------------------- */
